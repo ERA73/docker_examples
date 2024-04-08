@@ -1,0 +1,42 @@
+version: '3'
+services:
+  origin:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    cpus: 1
+    mem_limit: 0.5g
+    volumes:
+      - ./example/init_1.sql:/docker-entrypoint-initdb.d/init.sql
+    command: ["postgres", "-c", "log_statement=all"]
+  destination:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    cpus: 1
+    mem_limit: 0.5g
+  app:
+    build: .
+    cpus: 1
+    mem_limit: 0.5g
+    ports:
+      - "8000:8000"
+    depends_on:
+      - origin
+      - destination
+networks:
+  my_network:
+    driver: bridge
+
+
+# docker-compose down && docker-compose rm && docker-compose up --build
+# docker ps
+# docker stats 30c49f87da34
